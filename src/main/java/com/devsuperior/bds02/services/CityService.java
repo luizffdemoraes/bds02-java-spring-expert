@@ -5,16 +5,21 @@ import com.devsuperior.bds02.entities.City;
 import com.devsuperior.bds02.exception.DataBaseException;
 import com.devsuperior.bds02.exception.ResourceNotFoundException;
 import com.devsuperior.bds02.repositories.CityRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CityService {
 
     private CityRepository cityRepository;
 
-    public CityService (CityRepository cityRepository){
+    public CityService(CityRepository cityRepository) {
         this.cityRepository = cityRepository;
     }
 
@@ -36,5 +41,11 @@ public class CityService {
         } catch (DataIntegrityViolationException e) {
             throw new DataBaseException("Integrity violation");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<CityDTO> findAll() {
+        List<City> list = cityRepository.findAll(Sort.by("name"));
+        return list.stream().map(CityDTO::new).toList();
     }
 }
